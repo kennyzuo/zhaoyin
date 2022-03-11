@@ -19,20 +19,23 @@ const getChartOption = () => {
   return getData().then(({ contract, prcVwap, diff, tradeDate }) => {
     const option = {
       legend: {
-        data: ["方坯", "螺纹钢"],
+        data: ["方坯", "螺纹钢", "价差"],
       },
       tooltip: {
         trigger: "axis",
         formatter: function (params) {
           let con = params[0]
           let prc = params[1]
-          let diffmarker = `<span style=\"display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:#5470c6;\"></span>`
+          let diff = params[2] 
           return `<div style="    display: flex;
     flex-direction: column;
     align-items: flex-start;">
+              <div style="align-self: center;
+    margin-bottom: 4px;
+    font-size: 16px;">${con.axisValue}</div>
               <div>${prc.marker} 螺纹钢: ${prc.value}</div>
               <div>${con.marker} 方坯 : ${con.value}</div>
-              <div>${diffmarker} 价差 : ${prc.value - con.value}</div>
+              <div>${diff.marker} 价差 : ${diff.value}</div>
              </div>
              `
         },
@@ -46,6 +49,10 @@ const getChartOption = () => {
       yAxis: [
         {
           type: "value",
+          scale: true,
+          splitArea: {
+            show: true,
+          },
         },
       ],
       series: [
@@ -58,6 +65,11 @@ const getChartOption = () => {
           name: "螺纹钢",
           type: "line",
           data: prcVwap,
+        },
+        {
+          name: "价差",
+          type: "line",
+          data: diff,
         },
       ],
       dataZoom: [
