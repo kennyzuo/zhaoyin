@@ -60,6 +60,22 @@ const getChartOption = () => {
           data: prcVwap,
         },
       ],
+      dataZoom: [
+        {
+          type: "inside",
+          start: 0,
+          end: 100,
+          minValueSpan: 10,
+        },
+        {
+          show: true,
+          type: "slider",
+          bottom: 60,
+          start: 0,
+          end: 100,
+          minValueSpan: 10,
+        },
+      ],
     }
     return option
   })
