@@ -1,112 +1,74 @@
 <script setup>
 import { ref, onMounted } from "vue"
 import { init } from "echarts"
+import axios from "axios"
 
-const getChartOption = () => {
-  const option = {
-    title: {
-      text: "Stacked Area Chart",
-    },
-    tooltip: {
-      trigger: "axis",
-      axisPointer: {
-        type: "cross",
-        label: {
-          backgroundColor: "#6a7985",
-        },
-      },
-    },
-    legend: {
-      data: ["Email", "Union Ads", "Video Ads", "Direct", "Search Engine"],
-    },
-    toolbox: {
-      feature: {
-        saveAsImage: {},
-      },
-    },
-    grid: {
-      left: "3%",
-      right: "4%",
-      bottom: "3%",
-      containLabel: true,
-    },
-    xAxis: [
-      {
-        type: "category",
-        boundaryGap: false,
-        data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-      },
-    ],
-    yAxis: [
-      {
-        type: "value",
-      },
-    ],
-    series: [
-      {
-        name: "Email",
-        type: "line",
-        stack: "Total",
-        areaStyle: {},
-        emphasis: {
-          focus: "series",
-        },
-        data: [120, 132, 101, 134, 90, 230, 210],
-      },
-      {
-        name: "Union Ads",
-        type: "line",
-        stack: "Total",
-        areaStyle: {},
-        emphasis: {
-          focus: "series",
-        },
-        data: [220, 182, 191, 234, 290, 330, 310],
-      },
-      {
-        name: "Video Ads",
-        type: "line",
-        stack: "Total",
-        areaStyle: {},
-        emphasis: {
-          focus: "series",
-        },
-        data: [150, 232, 201, 154, 190, 330, 410],
-      },
-      {
-        name: "Direct",
-        type: "line",
-        stack: "Total",
-        areaStyle: {},
-        emphasis: {
-          focus: "series",
-        },
-        data: [320, 332, 301, 334, 390, 330, 320],
-      },
-      {
-        name: "Search Engine",
-        type: "line",
-        stack: "Total",
-        label: {
-          show: true,
-          position: "top",
-        },
-        areaStyle: {},
-        emphasis: {
-          focus: "series",
-        },
-        data: [820, 932, 901, 934, 1290, 1330, 1320],
-      },
-    ],
-  }
-
-  return option
+const getData = () => {
+  return axios.get("/services/v1/lineChart").then((res) => {
+    const { contract, diff, prcVwap, tradeDate } = res.data
+    return {
+      contract,
+      diff,
+      prcVwap,
+      tradeDate,
+    }
+  })
 }
 
-const initEcharts = () => {
+const getChartOption = () => {
+  return getData().then(({ contract, prcVwap, diff, tradeDate }) => {
+    const option = {
+      legend: {
+        data: ["方坯", "螺纹钢"],
+      },
+      tooltip: {
+        trigger: "axis",
+        formatter: function (params) {
+          let con = params[0]
+          let prc = params[1]
+          let diffmarker = `<span style=\"display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:#5470c6;\"></span>`
+          return `<div style="    display: flex;
+    flex-direction: column;
+    align-items: flex-start;">
+              <div>${prc.marker} 螺纹钢: ${prc.value}</div>
+              <div>${con.marker} 方坯 : ${con.value}</div>
+              <div>${diffmarker} 价差 : ${prc.value - con.value}</div>
+             </div>
+             `
+        },
+      },
+      xAxis: [
+        {
+          type: "category",
+          data: tradeDate,
+        },
+      ],
+      yAxis: [
+        {
+          type: "value",
+        },
+      ],
+      series: [
+        {
+          name: "方坯",
+          type: "line",
+          data: contract,
+        },
+        {
+          name: "螺纹钢",
+          type: "line",
+          data: prcVwap,
+        },
+      ],
+    }
+    return option
+  })
+}
+
+const initEcharts = async () => {
   const chartDom = document.querySelector(".echarts-demo")
   const myChart = init(chartDom)
-  const option = getChartOption()
+  const option = await getChartOption()
   option && myChart.setOption(option)
 }
 
@@ -123,8 +85,4 @@ const count = ref(0)
   <div class="echarts-demo" style="height: 400px"></div>
 </template>
 
-<style scoped>
-a {
-  color: #42b983;
-}
-</style>
+<style scoped></style>

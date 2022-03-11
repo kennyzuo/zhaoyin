@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^0.26.1",
     "echarts": "^4.8.0",
     "vue": "^3.2.25"
   },
